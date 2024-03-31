@@ -1,7 +1,7 @@
 class Product {
   final int _id;
   final String _name;
-  List<String> _sizes = [];
+  final List<String> _sizes;
   final double _price;
   final String _imageAsset;
   final String _description =

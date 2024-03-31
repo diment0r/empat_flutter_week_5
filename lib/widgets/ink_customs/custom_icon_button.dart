@@ -4,9 +4,20 @@ import 'package:flutter/material.dart';
 
 class CustomIconButton extends StatefulWidget {
   final Product _product;
-  final User user = AppData.user;
+  final List<Product> favourites;
+  final Function? addToFavouritesStateFunction;
+  final Function removeFromFavouritesStateFunction;
+  bool isLiked = false;
 
-  CustomIconButton({super.key, required Product product}) : _product = product;
+  CustomIconButton({
+    super.key,
+    required Product product,
+    required this.favourites,
+    required this.addToFavouritesStateFunction,
+    required this.removeFromFavouritesStateFunction,
+  }) : _product = product {
+    isLiked = favourites.contains(_product);
+  }
 
   @override
   State<CustomIconButton> createState() => _CustomIconButtonState();
@@ -14,16 +25,22 @@ class CustomIconButton extends StatefulWidget {
 
 class _CustomIconButtonState extends State<CustomIconButton>
     with AutomaticKeepAliveClientMixin<CustomIconButton> {
-  Color likedIconColor = CColors.dark;
+  // ? late bool isLiked; // тоже самое что и с toggle
+
+  @override
+  void initState() {
+    // ? isLiked = widget.favourites.contains(widget._product);
+    super.initState();
+  }
 
   void onIconTap() {
     setState(() {
-      if (likedIconColor == CColors.dark) {
-        likedIconColor = CColors.red;
-        widget.user.addToFavourite(widget._product);
+      if (!widget.isLiked && widget.addToFavouritesStateFunction != null) {
+        widget.isLiked = true;
+        widget.addToFavouritesStateFunction!(widget._product);
       } else {
-        likedIconColor = CColors.dark;
-        widget.user.removeFromFavourite(widget._product);
+        widget.isLiked = false;
+        widget.removeFromFavouritesStateFunction(widget._product);
       }
     });
   }
@@ -35,11 +52,10 @@ class _CustomIconButtonState extends State<CustomIconButton>
   Widget build(BuildContext context) {
     super.build(context);
     return Container(
-      margin: const EdgeInsets.all(8),
-      width: 25,
-      height: 25,
+      width: 35,
+      height: 35,
       decoration: BoxDecoration(
-        color: CColors.light.withOpacity(1.0),
+        color: CColors.light.withOpacity(0.7),
         shape: BoxShape.circle,
       ),
       child: Material(
@@ -48,11 +64,11 @@ class _CustomIconButtonState extends State<CustomIconButton>
           onTap: onIconTap,
           borderRadius: const BorderRadius.all(Radius.circular(50)),
           child: Ink(
-            child: Icon(Icons.favorite, size: 20, color: likedIconColor),
+            child: Icon(Icons.favorite,
+                size: 23, color: widget.isLiked ? CColors.red : CColors.dark),
           ),
         ),
       ),
     );
   }
 }
-

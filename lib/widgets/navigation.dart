@@ -1,3 +1,4 @@
+import 'package:empat_flutter_week_5/data/data.dart';
 import 'package:empat_flutter_week_5/pages/catalog_page.dart';
 import 'package:empat_flutter_week_5/pages/interests_page.dart';
 import 'package:empat_flutter_week_5/pages/favourites_page.dart';
@@ -13,15 +14,17 @@ class NavigationWidget extends StatefulWidget {
 }
 
 class _NavigationWidgetState extends State<NavigationWidget> {
+  // ! GLOBAL STATE
+
+  final List<Product> _products = AppData.products;
+  final User _authUser = AppData.user;
+
+  // !
+
   int currentIndex = 0;
   late PageController pageController;
   late ScrollController scrollController = ScrollController();
 
-  final List<Widget> pages = const [
-    HomePageWidget(),
-    InterestsPageWidget(),
-    SkillsPageWidget(),
-  ];
   final List<BottomNavigationBarItem> navBarItems = const [
     BottomNavigationBarItem(icon: Icon(Icons.shopping_bag), label: 'Catalog'),
     BottomNavigationBarItem(icon: Icon(Icons.interests), label: 'Interests'),
@@ -38,12 +41,25 @@ class _NavigationWidgetState extends State<NavigationWidget> {
   @override
   void dispose() {
     pageController.dispose();
+    scrollController.dispose();
     super.dispose();
   }
 
   void _onNavBarItemTap(int index) {
     setState(() {
       currentIndex = index;
+    });
+  }
+
+  void addToFavourite(Product product) {
+    setState(() {
+      _authUser.addToFavourite(product);
+    });
+  }
+
+  void removeFromFavourite(Product product) {
+    setState(() {
+      _authUser.removeFromFavourite(product);
     });
   }
 
@@ -74,7 +90,8 @@ class _NavigationWidgetState extends State<NavigationWidget> {
                 preferredSize: const Size.fromHeight(64),
                 child: Container(
                   width: double.infinity,
-                  margin: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
+                  margin:
+                      const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
                   padding: const EdgeInsets.all(10),
                   decoration: const BoxDecoration(
                       color: CColors.light,
@@ -94,7 +111,19 @@ class _NavigationWidgetState extends State<NavigationWidget> {
         body: PageView(
           controller: pageController,
           onPageChanged: _onNavBarItemTap,
-          children: pages,
+          children: [
+            CatalogPageWidget(
+              user: _authUser,
+              products: _products,
+              addToFavouritesStateFunction: addToFavourite,
+              removeFromFavouritesStateFunction: removeFromFavourite,
+            ),
+            const InterestsPageWidget(),
+            FavouritesPageWidget(
+              userFavourites: _authUser.favourites,
+              removeFromFavouritesStateFunction: removeFromFavourite,
+            ),
+          ],
         ),
       ),
       bottomNavigationBar: BottomNavigationBar(

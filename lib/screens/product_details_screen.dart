@@ -1,29 +1,39 @@
 import 'package:empat_flutter_week_5/data/data.dart';
 import 'package:empat_flutter_week_5/utils/colors.dart';
+import 'package:empat_flutter_week_5/utils/product_screen_args.dart';
+import 'package:empat_flutter_week_5/widgets/custom_toggle.dart';
 import 'package:empat_flutter_week_5/widgets/ink_customs/custom_button.dart';
+import 'package:empat_flutter_week_5/widgets/ink_customs/custom_icon_button.dart';
 import 'package:flutter/material.dart';
 
-class ProductDetailsScreenWidget extends StatefulWidget {
+class ProductDetailsScreenWidget extends StatelessWidget {
   const ProductDetailsScreenWidget({super.key});
 
   @override
-  State<ProductDetailsScreenWidget> createState() =>
-      _ProductDetailsScreenWidgetState();
-}
-
-class _ProductDetailsScreenWidgetState
-    extends State<ProductDetailsScreenWidget> {
-  @override
   Widget build(BuildContext context) {
-    final Product product =
-        (ModalRoute.of(context)?.settings.arguments) as Product;
+    final ProductScreenArguments arguments =
+        (ModalRoute.of(context)?.settings.arguments) as ProductScreenArguments;
+
+    Product product = arguments.product;
 
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: CColors.dark,
-        foregroundColor: CColors.light,
-        title: Text(product.name),
-      ),
+          backgroundColor: CColors.dark,
+          foregroundColor: CColors.light,
+          title: Text(product.name),
+          actions: [
+            Padding(
+              padding: const EdgeInsets.only(right: 10),
+              child: CustomIconButton(
+                product: product,
+                favourites: arguments.favourites,
+                addToFavouritesStateFunction:
+                    arguments.addToFavouritesStateFunction,
+                removeFromFavouritesStateFunction:
+                    arguments.removeFromFavouritesStateFunction,
+              ),
+            )
+          ]),
       floatingActionButton: FloatingActionButton(
         elevation: 0,
         backgroundColor: CColors.dark,
@@ -62,18 +72,12 @@ class DetailsBodyWidget extends StatelessWidget {
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      product.name,
-                      style: const TextStyle(
-                        fontSize: 25,
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                    Text(product.sizes.toString()),
-                  ],
+                Text(
+                  product.name,
+                  style: const TextStyle(
+                    fontSize: 25,
+                    fontWeight: FontWeight.w600,
+                  ),
                 ),
                 Text(
                   '${product.price}0 UAH',
@@ -84,6 +88,12 @@ class DetailsBodyWidget extends StatelessWidget {
                 ),
               ],
             ),
+          ),
+          CustomToggleWidget(
+            sizes: product.sizes,
+            minHeight: 30,
+            minWidth: 45,
+            fontSize: 13,
           ),
           const CustomButtonWidget(),
           const SizedBox(height: 20),
